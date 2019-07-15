@@ -7,6 +7,8 @@ int main(int argc, char **argv){
 
   PLX9030::plx9030 *plx = new PLX9030::plx9030("/dev/plxdev0");
 
+  plx->write8(0x00, PLX9030::CS0,0);
+  
   for(int i=0;i<32;i++){
     byte = plx->read8(PLX9030::CS0, i);
     std::cout << std::dec << "CS0+" << i
