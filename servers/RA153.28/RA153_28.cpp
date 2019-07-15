@@ -158,8 +158,35 @@ void RA153_28::init_device()
 	attr_RightEnd_read = new Tango::DevBoolean[1];
 	/*----- PROTECTED REGION ID(RA153_28::init_device) ENABLED START -----*/
 	
-	//	Initialize device
-	
+	if(p9030 != NULL) delete p9030;
+	p9030 = new PLX9030::plx9030(device);
+	if(p9030->getStatus()!=PLX9030::STATUS_OK){
+		device_state = Tango::FAULT;
+		device_status = "Error open device " + device + "\n";
+		return;
+	}
+
+	if(c_ra153_28 != NULL) delete c_ra153_28;
+	c_ra153_28 = new cRA153_28::controller_RA153_28(p9030);
+	c_ra153_28->encoder_bits = 26;
+	c_ra153_28->setChannel(channel);
+	c_ra153_28->setSSISpeed(50);
+	c_ra153_28->setSpeed(speed);
+	c_ra153_28->initMotion();
+	c_ra153_28->stopMotion();
+
+	device_state = Tango::ON;
+	device_status = Tango::STOP;
+
+
+	/* DEBUG */
+	std::cout << "\t\t\t\tCS0: \t\t\t\tCS1:\n";
+	for(int i=0;i<32;i++){
+		std::cout << std::dec << i << " - " << std::hex << "0x" << i << ":\t\t0x" << (uint16_t)(p9030->read8(PLX9030::CS0,i)&0xff);
+		std::cout << "\t\t\t\t0x" << (uint16_t)(p9030->read8(PLX9030::CS1,i)&0xff) << "\n";
+	}
+	std::cout << "\n";
+
 	/*----- PROTECTED REGION END -----*/	//	RA153_28::init_device
 }
 
@@ -324,6 +351,19 @@ void RA153_28::read_rPosition(Tango::Attribute &attr)
 	DEBUG_STREAM << "RA153_28::read_rPosition(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(RA153_28::read_rPosition) ENABLED START -----*/
 	//	Set the attribute value
+
+	/* DEBUG */
+
+	*attr_rPosition_read = c_ra153_28->getCounts()/stepToUnit;
+
+	if(*attr_rPosition_read == 0.0){
+		c_ra153_28->stopMotion();
+		device_state = Tango::ON;
+		device_status = Tango::STOP;
+	}else{
+		device_state = Tango::MOVING;
+	}
+
 	attr.set_value(attr_rPosition_read);
 	
 	/*----- PROTECTED REGION END -----*/	//	RA153_28::read_rPosition
@@ -344,8 +384,17 @@ void RA153_28::write_rPosition(Tango::WAttribute &attr)
 	Tango::DevDouble	w_val;
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(RA153_28::write_rPosition) ENABLED START -----*/
-	
-	
+
+	bool direction;
+
+	if(w_val >= 0) direction = true;
+	if(w_val < 0){
+		direction = false;
+		w_val = -w_val;
+	}
+
+	c_ra153_28->runMition(w_val*stepToUnit,direction);
+
 	/*----- PROTECTED REGION END -----*/	//	RA153_28::write_rPosition
 }
 //--------------------------------------------------------
@@ -382,7 +431,8 @@ void RA153_28::write_aPosition(Tango::WAttribute &attr)
 	Tango::DevDouble	w_val;
 	attr.get_write_value(w_val);
 	/*----- PROTECTED REGION ID(RA153_28::write_aPosition) ENABLED START -----*/
-	
+
+
 	
 	/*----- PROTECTED REGION END -----*/	//	RA153_28::write_aPosition
 }
@@ -438,6 +488,8 @@ void RA153_28::read_LeftEnd(Tango::Attribute &attr)
 	DEBUG_STREAM << "RA153_28::read_LeftEnd(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(RA153_28::read_LeftEnd) ENABLED START -----*/
 	//	Set the attribute value
+
+	*attr_LeftEnd_read = c_ra153_28->getLeftEnd();
 	attr.set_value(attr_LeftEnd_read);
 	
 	/*----- PROTECTED REGION END -----*/	//	RA153_28::read_LeftEnd
@@ -456,8 +508,10 @@ void RA153_28::read_CentralEnd(Tango::Attribute &attr)
 	DEBUG_STREAM << "RA153_28::read_CentralEnd(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(RA153_28::read_CentralEnd) ENABLED START -----*/
 	//	Set the attribute value
+
+	*attr_CentralEnd_read = c_ra153_28->getCentralEnd();
 	attr.set_value(attr_CentralEnd_read);
-	
+
 	/*----- PROTECTED REGION END -----*/	//	RA153_28::read_CentralEnd
 }
 //--------------------------------------------------------
@@ -474,6 +528,8 @@ void RA153_28::read_RightEnd(Tango::Attribute &attr)
 	DEBUG_STREAM << "RA153_28::read_RightEnd(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(RA153_28::read_RightEnd) ENABLED START -----*/
 	//	Set the attribute value
+
+	*attr_RightEnd_read = c_ra153_28->getRightEnd();
 	attr.set_value(attr_RightEnd_read);
 	
 	/*----- PROTECTED REGION END -----*/	//	RA153_28::read_RightEnd
@@ -508,6 +564,7 @@ void RA153_28::stop()
 	/*----- PROTECTED REGION ID(RA153_28::stop) ENABLED START -----*/
 	
 	//	Add your own code
+	c_ra153_28->stopMotion();
 	
 	/*----- PROTECTED REGION END -----*/	//	RA153_28::stop
 }

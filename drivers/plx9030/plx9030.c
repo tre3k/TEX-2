@@ -7,7 +7,6 @@
 
 
 #include "plx9030.h"
-#include "plx9030c.h"
 
 static int __init init_plx9030(void){
   int retval = 0;

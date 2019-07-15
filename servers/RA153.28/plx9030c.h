@@ -11,15 +11,16 @@
 
 namespace PLX9030{
 
+
 #define CS0_SET_ADDR 0xfacecaf0
 #define CS1_SET_ADDR CS0_SET_ADDR+1
 #define CS2_SET_ADDR CS0_SET_ADDR+2
 #define CS3_SET_ADDR CS0_SET_ADDR+3
 
-#define CS0 CS0_SET_ADDR
-#define CS1 CS1_SET_ADDR
-#define CS2 CS2_SET_ADDR
-#define CS3 CS3_SET_ADDR
+const uint32_t CS0 = CS0_SET_ADDR;
+const uint32_t CS1 = CS1_SET_ADDR;
+const uint32_t CS2 = CS2_SET_ADDR;
+const uint32_t CS3 = CS3_SET_ADDR;
 
 
     enum{
@@ -48,22 +49,22 @@ namespace PLX9030{
 
         /* Functions for write/read CS0..3 for 8,16,24 and 32 bits */
         // base - CS0,CS1,CS2,CS3
-        char read8(unsigned long int base, long int offset);
-        void write8(unsigned long int base, long int offset, char byte);
+        char read8(uint32_t base, long int offset);
+        void write8(uint32_t base, long int offset, char byte);
 
-        uint16_t read16(unsigned long int base, long int offset);
-        void write16(unsigned long int base, long int offset, uint16_t word);
+        uint16_t read16(uint32_t base, long int offset);
+        void write16(uint32_t base, long int offset, uint16_t word);
 
-        uint32_t read24(unsigned long int base, long int offset);
-        void write24(unsigned long int base, long int offset, uint32_t twoword);
+        uint32_t read24(uint32_t base, long int offset);
+        void write24(uint32_t base, long int offset, uint32_t twoword);
 
-        uint32_t read32(unsigned long int base, long int offset);
-        void write32(unsigned long int base, long int offset, uint32_t twoword);
+        uint32_t read32(uint32_t base, long int offset);
+        void write32(uint32_t base, long int offset, uint32_t twoword);
 
         /* set mask / unset mask - selective set/unset bits in register by mask */
         // mask - just or operation (bit1|bit2|bit3)
-        void setMask(unsigned long int base, long int offset, unsigned char mask);
-        void unsetMask(unsigned long int base, long int offset, unsigned char mask);
+        void setMask(uint32_t base, long int offset, unsigned char mask);
+        void unsetMask(uint32_t base, long int offset, unsigned char mask);
     };
 }
 

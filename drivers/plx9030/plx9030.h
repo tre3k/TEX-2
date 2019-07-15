@@ -30,6 +30,11 @@
 #define VPD_DATA 0x50
 #define VPD_ADDR 0x4c
 
+#define CS0_SET_ADDR 0xfacecaf0
+#define CS1_SET_ADDR CS0_SET_ADDR+1
+#define CS2_SET_ADDR CS0_SET_ADDR+2
+#define CS3_SET_ADDR CS0_SET_ADDR+3
+
 
 static unsigned int gCount = 0;
 static dev_t tdev;

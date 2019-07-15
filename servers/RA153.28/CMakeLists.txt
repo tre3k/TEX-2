@@ -28,7 +28,7 @@ add_executable(RA153.28
         RA153_28Class.cpp RA153_28Class.h
         RA153_28StateMachine.cpp
         ClassFactory.cpp
-        plx9030c.cpp)
+        plx9030c.cpp controller_RA153_28.cpp controller_RA153_28.h)
 
 target_link_libraries(RA153.28
         ${TANGO_LIB}

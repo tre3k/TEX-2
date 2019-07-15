@@ -37,6 +37,7 @@
 #include <tango.h>
 
 #include "plx9030c.h"
+#include "controller_RA153_28.h"
 
 
 /*----- PROTECTED REGION END -----*/	//	RA153_28.h
@@ -59,7 +60,9 @@ class RA153_28 : public TANGO_BASE_CLASS
 
 /*----- PROTECTED REGION ID(RA153_28::Data Members) ENABLED START -----*/
 
-//	Add your own data members
+public:
+	PLX9030::plx9030 *p9030 = NULL;
+    cRA153_28::controller_RA153_28 *c_ra153_28 = NULL;
 
 /*----- PROTECTED REGION END -----*/	//	RA153_28::Data Members
 
