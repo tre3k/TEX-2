@@ -1,24 +1,17 @@
 #include "tdc.h"
 
-TDC::TDC(std::string devname){
+using namespace TDC;
+
+tdc::tdc(std::string devname){
   plx = new plx9030(devname);
-
-  std::cout << "\n!!! Before!!!\n";
-  plx->readMap(32,32,64,64);
-
-  init();
-
-  std::cout << "\n!!! After !!!\n";
-  plx->readMap(32,32,64,64);
-  
+  init();  
 }
 
-TDC::~TDC(){
+tdc::~tdc(){
   delete plx;
 }
 
-
-void TDC::init(){
+void tdc::init(){
   /* initialisation */
   /* D7 - Disable INTR from falg FIFO */
   plx->write8(CS0,0,0x00);  // CS0+0: D7 = 0, D6..D0 = xx;
@@ -71,13 +64,33 @@ void TDC::init(){
   return;
 }
 
-void TDC::start(){
+void tdc::start(){
+  plx->write8(CS0,0,0x80); // D7 = 1, enable INTR
+  plx->write8(CS0,2,0x40); // enable TDC
+
+  plx->write16(CS3,31*2,0xf001); //enable STOP, disable START, Enable INIT TDC
+  plx->write8(CS0,2,0x60); // enable TDC, enable WORK
+  plx->write16(CS3,31*2,0xfc03); // enable START, enable STOP, Enable INIT TDC
+
+  plx->readMap(32,32,64,64);
 }
 
-void TDC::stop(){
+void tdc::stop(){
+  plx->write16(CS3,31*2,0xf803); // enable STOP
 }
 
-int TDC::memCheck(){
+data tdc::readDataOne(){
+  struct data retval;
+  uint16_t tmp;
+
+  tmp = plx->read16(CS3,256*2);
+  retval.channel_code = (tmp & 0xe000) >> 13;
+  retval.time_code = (tmp & 0x1fff);
+  
+  return retval;
+}
+
+int tdc::memCheck(){
   char value = plx->read8(CS0,3);
   return (int)(value&0x03);
 }
