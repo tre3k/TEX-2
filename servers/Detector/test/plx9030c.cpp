@@ -59,7 +59,7 @@ void plx9030::write8(uint32_t base, long int offset, char byte) {
     if(write(fd,&byte,1) <0 ) status = STATUS_WRITE_ERROR;
 
 #ifdef DEBUG
-    sleep(1);
+    //sleep(1);
     std::cout << " = 0x" << (read8(base,offset)&0xff) << std::dec << "\n";
 #endif
 }

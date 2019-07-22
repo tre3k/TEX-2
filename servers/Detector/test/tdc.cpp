@@ -28,7 +28,7 @@ void tdc::init(){
   plx->write32(CS3,4*2,0x00000002);     // memCS3[5,4]       [11,10,9,8]
   plx->write32(CS3,6*2,0x00000000);     // memCS3[7,6]       [15,14,13,12]
   plx->write32(CS3,8*2,0x06000000);     // memCS3[9,8]       [19,18,17,16]
-  plx->write32(CS3,10*2,0x06000000);    // memCS3[11,10]     [23,22,21,20]
+  plx->write32(CS3,10*2,0x00e00000);    // memCS3[11,10]     [23,22,21,20]
   plx->write32(CS3,12*2,0x00000000);    // memCS3[13,12]     [27,26,25,24]
   plx->write32(CS3,14*2,0x00141fb4);    // memCS3[15,14]     [31,30,29,28]
   plx->write32(CS3,22*2,0x07ff0000);    // memCS3[23,22]     [47,46,45,44]
@@ -36,7 +36,7 @@ void tdc::init(){
   // ... skip 32 bits ... //
   plx->write32(CS3,28*2,0x00000000);    // memCS3[23,22]     [59,58,57,56]
 
-  plx->write32(CS3,8*2,0x64000000);     // Master reset
+  plx->write32(CS3,8*2,0x06400000);     // Master reset
 
   //std::cout << "MEM: " << std::hex << "0x" << (plx->read16(CS3,30*2)&0xffff) << "\n";
   //plx->readMap(32,0,0,256);
@@ -63,7 +63,6 @@ void tdc::stop(){
 #endif
     plx->write16(CS3,31*2,0xf803); // enable STOP
     plx->readMap(32,0,0,256*2+2);
-
 }
 
 data tdc::readDataOne(){
