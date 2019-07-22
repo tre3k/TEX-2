@@ -36,8 +36,31 @@ char plx9030::read8(uint32_t base, long int offset) {
 }
 
 void plx9030::write8(uint32_t base, long int offset, char byte) {
+#ifdef DEBUG
+    switch (base){
+        case CS0:
+            std::cout << "CS0+" << std::dec << offset;
+            break;
+        case CS1:
+            std::cout << "CS1+" << std::dec << offset;
+            break;
+        case CS2:
+            std::cout << "CS2+" << std::dec << offset;
+            break;
+        case CS3:
+            std::cout << "CS3+" << std::dec << offset;
+            break;
+    }
+
+    std::cout << std::hex << " 0x" << (read8(base,offset)&0xff) << " -> " << "0x" << (byte&0xff);
+#endif
+
     if(ioctl(fd,base,offset) < 0) status = STATUS_IOCTL_ERROR;
     if(write(fd,&byte,1) <0 ) status = STATUS_WRITE_ERROR;
+
+#ifdef DEBUG
+    std::cout << " = 0x" << (read8(base,offset)&0xff) << std::dec << "\n";
+#endif
 }
 
 uint16_t plx9030::read16(uint32_t base, long int offset) {

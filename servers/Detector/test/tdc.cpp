@@ -4,7 +4,7 @@ using namespace TDC;
 
 tdc::tdc(std::string devname){
   plx = new plx9030(devname);
-  init();  
+  init();
 }
 
 tdc::~tdc(){
@@ -71,8 +71,6 @@ void tdc::start(){
   plx->write16(CS3,31*2,0xf001); //enable STOP, disable START, Enable INIT TDC
   plx->write8(CS0,2,0x60); // enable TDC, enable WORK
   plx->write16(CS3,31*2,0xfc03); // enable START, enable STOP, Enable INIT TDC
-
-  plx->readMap(32,32,64,64);
 }
 
 void tdc::stop(){

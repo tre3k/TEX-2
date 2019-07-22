@@ -11,6 +11,7 @@
 
 namespace PLX9030{
 
+#define DEBUG
 
 #define CS0_SET_ADDR 0xfacecaf0
 #define CS1_SET_ADDR CS0_SET_ADDR+1
@@ -65,7 +66,7 @@ const uint32_t CS3 = CS3_SET_ADDR;
         // mask - just or operation (bit1|bit2|bit3)
         void setMask(uint32_t base, long int offset, unsigned char mask);
         void unsetMask(uint32_t base, long int offset, unsigned char mask);
-	void readMap(int sizeCS0,int sizeCS1,int sizeCS2,int sizeCS3);
+	    void readMap(int sizeCS0,int sizeCS1,int sizeCS2,int sizeCS3);
 
     };
 }

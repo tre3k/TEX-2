@@ -8,9 +8,9 @@ int main(int argc, char **argv){
   
   TDC::tdc *tdc = new TDC::tdc();
 
-  tdc->start();
-  sleep(1);
-  tdc->stop();
+  //tdc->start();
+  //sleep(10);
+  //tdc->stop();
 
   std::cout << "\n";
   switch(tdc->memCheck()){
@@ -33,8 +33,7 @@ int main(int argc, char **argv){
     std::cout << std::dec << TDCdata.channel_code << " : "
 	      << TDCdata.time_code << "\n";
   }
-  
-  
+
   
   delete tdc;
   
