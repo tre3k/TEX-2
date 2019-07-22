@@ -6,6 +6,8 @@
 
 namespace TDC{
 
+#define DEBUG
+
   /* memory check */
   enum{
     MEM_EMPTY,

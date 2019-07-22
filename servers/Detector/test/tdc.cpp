@@ -12,59 +12,43 @@ tdc::~tdc(){
 }
 
 void tdc::init(){
-  /* initialisation */
-  /* D7 - Disable INTR from falg FIFO */
-  plx->write8(CS0,0,0x00);  // CS0+0: D7 = 0, D6..D0 = xx;
-  /* D5 - reset TDC, D6 - reset FIFO */
-  plx->write8(CS0,2,0x00);  // CS0+2: D6,D5 = 0, D7,D4..D0 = xx;
-  /* disble stop, disable start */
-  plx->write16(CS3,31*2,0x0000);
+  // Disable start and stop init TDC,reset FIFO
+  plx->write8(CS0,0x00,0x00);
+  // Reset TDC, RESET FIFO
+  plx->write8(CS0,0x02,0x00);
+  // Reset TDC,
+  plx->write16(CS3,31*2,0);
 
-  /* Enable TDC */
-  plx->write8(CS0,2,0x40);           // CS0+2: D6 = 1
-  plx->write16(CS3,31*2,0x0003);     // D0=1,D1=1
+  plx->write8(CS0,2,0x40);
+  plx->write16(CS3,31*2,0x03);
 
-  /* init TDC*/
-  plx->write16(CS3,1*2,0x0007);     
-  plx->write16(CS3,0*2,0xfc81);
-  
-  plx->write16(CS3,3*2,0x0000);
-  plx->write16(CS3,2*2,0x0000);
+                                        // short int         addr
+  plx->write32(CS3,0*2,0x0007fc81);     // memCS3[1,0]       [3,2,1,0]
+  plx->write32(CS3,2*2,0x00000000);     // memCS3[3,2]       [7,6,5,4]
+  plx->write32(CS3,4*2,0x00000002);     // memCS3[5,4]       [11,10,9,8]
+  plx->write32(CS3,6*2,0x00000000);     // memCS3[7,6]       [15,14,13,12]
+  plx->write32(CS3,8*2,0x06000000);     // memCS3[9,8]       [19,18,17,16]
+  plx->write32(CS3,10*2,0x06000000);    // memCS3[11,10]     [23,22,21,20]
+  plx->write32(CS3,12*2,0x00000000);    // memCS3[13,12]     [27,26,25,24]
+  plx->write32(CS3,14*2,0x00141fb4);    // memCS3[15,14]     [31,30,29,28]
+  plx->write32(CS3,22*2,0x07ff0000);    // memCS3[23,22]     [47,46,45,44]
+  plx->write32(CS3,24*2,0x02000000);    // memCS3[23,22]     [51,50,49,48]
+  // ... skip 32 bits ... //
+  plx->write32(CS3,28*2,0x00000000);    // memCS3[23,22]     [59,58,57,56]
 
-  plx->write16(CS3,5*2,0x0000);
-  plx->write16(CS3,4*2,0x0002);
+  plx->write32(CS3,8*2,0x64000000);     // Master reset
 
-  plx->write16(CS3,7*2,0x0000);
-  plx->write16(CS3,6*2,0x0000);
-
-  plx->write16(CS3,9*2,0x0600);
-  plx->write16(CS3,8*2,0x0000);
-
-  plx->write16(CS3,11*2,0x00e0);
-  plx->write16(CS3,10*2,0x0000);
-
-  plx->write16(CS3,13*2,0x0000);
-  plx->write16(CS3,12*2,0x0000);
-
-  plx->write16(CS3,15*2,0x0014);
-  plx->write16(CS3,14*2,0x1fb4);
-
-  plx->write16(CS3,23*2,0x07ff);  //0x000007ff
-  plx->write16(CS3,22*2,0x0000);
-  
-  plx->write16(CS3,25*2,0x0200);
-  plx->write16(CS3,24*2,0x0000);
-
-  plx->write16(CS3,29*2,0x0000);
-  plx->write16(CS3,28*2,0x0000);
-
-  plx->write16(CS3,9*2,0x0640); // Master reset
-  plx->write16(CS3,8*2,0x0000);
+  //std::cout << "MEM: " << std::hex << "0x" << (plx->read16(CS3,30*2)&0xffff) << "\n";
+  //plx->readMap(32,0,0,256);
 
   return;
 }
 
 void tdc::start(){
+#ifdef DEBUG
+  std::cout << "START\n";
+#endif
+
   plx->write8(CS0,0,0x80); // D7 = 1, enable INTR
   plx->write8(CS0,2,0x40); // enable TDC
 
@@ -74,7 +58,12 @@ void tdc::start(){
 }
 
 void tdc::stop(){
-  plx->write16(CS3,31*2,0xf803); // enable STOP
+#ifdef DEBUG
+    std::cout << "STOP\n";
+#endif
+    plx->write16(CS3,31*2,0xf803); // enable STOP
+    plx->readMap(32,0,0,256*2+2);
+
 }
 
 data tdc::readDataOne(){
@@ -90,5 +79,8 @@ data tdc::readDataOne(){
 
 int tdc::memCheck(){
   char value = plx->read8(CS0,3);
+#ifdef DEBUG
+  std::cout << "CS0+3: " << std::hex << "0x" << (value&0xff) << std::dec << "\n";
+#endif
   return (int)(value&0x03);
 }

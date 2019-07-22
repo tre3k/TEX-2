@@ -52,13 +52,14 @@ void plx9030::write8(uint32_t base, long int offset, char byte) {
             break;
     }
 
-    std::cout << std::hex << " 0x" << (read8(base,offset)&0xff) << " -> " << "0x" << (byte&0xff);
+    std::cout << std::hex << " 0x" << (byte&0xff) << " -> " << "0x" << (read8(base,offset)&0xff);
 #endif
 
     if(ioctl(fd,base,offset) < 0) status = STATUS_IOCTL_ERROR;
     if(write(fd,&byte,1) <0 ) status = STATUS_WRITE_ERROR;
 
 #ifdef DEBUG
+    sleep(1);
     std::cout << " = 0x" << (read8(base,offset)&0xff) << std::dec << "\n";
 #endif
 }
@@ -166,7 +167,7 @@ void plx9030::readMap(int sizeCS0,int sizeCS1,int sizeCS2,int sizeCS3){
   }
 
   std::cout << "---------------- CS3 ----------------------\n";
-  for(int i=0;i<sizeCS2;i++){
+  for(int i=0;i<sizeCS3;i++){
     std::cout << "CS3+" << std::dec << i << "\t"
 	      << "0x" << std::hex  << (cCS3[i]&0xff) << "\n";
   }
