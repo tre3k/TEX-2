@@ -9,7 +9,7 @@
 #ifndef PLX9030_H
 #define PLX9030_H
 
-//#define DEBUG_MODE
+#define DEBUG_MODE
 
 #include <linux/init.h>
 #include <linux/module.h>

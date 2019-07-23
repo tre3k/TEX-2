@@ -3,39 +3,43 @@
 #include "tdc.h"
 
 int main(int argc, char **argv){
-  char byte;
-  TDC::data TDCdata;
-  
-  TDC::tdc *tdc = new TDC::tdc();
+    char byte;
+    TDC::data TDCdata;
 
-  tdc->start();
-  sleep(30);
-  tdc->stop();
+    TDC::tdc *tdc = new TDC::tdc();
 
-  std::cout << "\n";
-  switch(tdc->memCheck()){
-  case TDC::MEM_EMPTY:
-    std::cout << "memory empty\n";
-    break;
+    tdc->start();
+    for(int i=0;i<30;i++){
+        tdc->memCheck();
+        sleep(1);
+    }
+    tdc->stop();
 
-  case TDC::MEM_HALF:
-    std::cout << "memory half\n";
-    break;
+    std::cout << "\n";
+    switch(tdc->memCheck()){
+        case TDC::MEM_EMPTY:
+            std::cout << "memory empty\n";
+            break;
 
-  case TDC::MEM_FULL:
-    std::cout << "memory full\n";
-    break;
-  }
+        case TDC::MEM_HALF:
+            std::cout << "memory half\n";
+            break;
 
-  
-  for(int i=0;i<16;i++){
-    //TDCdata = tdc->readDataOne();
-    //std::cout << std::dec << TDCdata.channel_code << " : "
-	//      << TDCdata.time_code << "\n";
-  }
+        case TDC::MEM_FULL:
+            std::cout << "memory full\n";
+            break;
+    }
 
-  
-  delete tdc;
-  
-  return 0;
+
+    for(int i=0;i<16;i++){
+
+        TDCdata = tdc->readDataOne();
+        std::cout << std::dec << TDCdata.channel_code << " : "
+              << TDCdata.time_code << "\n";
+    }
+
+
+    delete tdc;
+
+    return 0;
 }

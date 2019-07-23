@@ -127,54 +127,54 @@ void plx9030::unsetMask(uint32_t base, long int offset, unsigned char mask) {
 }
 
 void plx9030::readMap(int sizeCS0,int sizeCS1,int sizeCS2,int sizeCS3){
-  char *cCS0 = new char[sizeCS0];
-  char *cCS1 = new char[sizeCS1];
-  char *cCS2 = new char[sizeCS2];
-  char *cCS3 = new char[sizeCS3];
+    char *cCS0 = new char[sizeCS0];
+    char *cCS1 = new char[sizeCS1];
+    char *cCS2 = new char[sizeCS2];
+    char *cCS3 = new char[sizeCS3];
 
-  for(int i=0;i<sizeCS0;i++){
-    cCS0[i] = read8(CS0,i);
-  }
+    for(int i=0;i<sizeCS0;i++){
+        cCS0[i] = read8(CS0,i);
+    }
 
-  for(int i=0;i<sizeCS1;i++){
-    cCS1[i] = read8(CS1,i);
-  }
+    for(int i=0;i<sizeCS1;i++){
+        cCS1[i] = read8(CS1,i);
+    }
 
-  for(int i=0;i<sizeCS2;i++){
-    cCS2[i] = read8(CS2,i);
-  }
+    for(int i=0;i<sizeCS2;i++){
+        cCS2[i] = read8(CS2,i);
+    }
 
-  for(int i=0;i<sizeCS3;i++){
-    cCS3[i] = read8(CS3,i);
-  }
-  
-  std::cout << "---------------- CS0 ----------------------\n";
-  for(int i=0;i<sizeCS0;i++){
-    std::cout << "CS0+" << std::dec << i << "\t"
-	      << "0x" << std::hex  << (cCS0[i]&0xff) << "\n";
-  }
-  
-  std::cout << "---------------- CS1 ----------------------\n";
-  for(int i=0;i<sizeCS1;i++){
-    std::cout << "CS1+" << std::dec << i << "\t"
-	      << "0x" << std::hex  << (cCS1[i]&0xff) << "\n";
-  }
+    for(int i=0;i<sizeCS3;i++){
+        cCS3[i] = read8(CS3,i);
+    }
 
-  std::cout << "---------------- CS2 ----------------------\n";
-  for(int i=0;i<sizeCS2;i++){
-    std::cout << "CS2+" << std::dec << i << "\t"
-	      << "0x" << std::hex  << (cCS2[i]&0xff) << "\n";
-  }
+    std::cout << "---------------- CS0 ----------------------\n";
+    for(int i=0;i<sizeCS0;i++){
+        std::cout << "CS0+" << std::dec << i << "\t"
+                  << "0x" << std::hex  << (cCS0[i]&0xff) << "\n";
+    }
 
-  std::cout << "---------------- CS3 ----------------------\n";
-  for(int i=0;i<sizeCS3;i++){
-    std::cout << "CS3+" << std::dec << i << "\t"
-	      << "0x" << std::hex  << (cCS3[i]&0xff) << "\n";
-  }
-  
-  delete [] cCS0;
-  delete [] cCS1;
-  delete [] cCS2;
-  delete [] cCS3;
-  
+    std::cout << "---------------- CS1 ----------------------\n";
+    for(int i=0;i<sizeCS1;i++){
+        std::cout << "CS1+" << std::dec << i << "\t"
+                  << "0x" << std::hex  << (cCS1[i]&0xff) << "\n";
+    }
+
+    std::cout << "---------------- CS2 ----------------------\n";
+    for(int i=0;i<sizeCS2;i++){
+        std::cout << "CS2+" << std::dec << i << "\t"
+                  << "0x" << std::hex  << (cCS2[i]&0xff) << "\n";
+    }
+
+    std::cout << "---------------- CS3 ----------------------\n";
+    for(int i=0;i<sizeCS3;i++){
+        std::cout << "CS3+" << std::dec << i << "\t"
+                  << "0x" << std::hex  << (cCS3[i]&0xff) << "\n";
+    }
+
+    delete [] cCS0;
+    delete [] cCS1;
+    delete [] cCS2;
+    delete [] cCS3;
+
 }
