@@ -13,4 +13,5 @@ clean:
 test:
 	rmmod plx9030_detector
 	insmod plx9030_detector.ko
+	chmod 666 /dev/plxdetector*
 	dmesg | tail -n 40

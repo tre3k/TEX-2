@@ -152,10 +152,12 @@ static long device_file_ioctl(struct file *f, unsigned int ioctl_num, unsigned l
 
   case IOCTL_START_DETECTOR:
     mydata->flag = IOCTL_START_DETECTOR;
+    start_measure(mydata->cs0_port,mydata->cs3_mem);
     break;
 
   case IOCTL_STOP_DETECTOR:
     mydata->flag = IOCTL_STOP_DETECTOR;
+    stop_measure(mydata->cs3_mem);
     break;
 
   case IOCTL_READ_DETECTOR:
@@ -176,13 +178,18 @@ static ssize_t device_file_read(struct file *f, char __user *buff, size_t count,
   struct my_chrdevice_data *mydata;
   mydata = (struct my_chrdevice_data *) f->private_data;
 
+  char iobuff;
+  u16 tmpWord;
+  
   switch(mydata->flag){
   case IOCTL_READ_DETECTOR:
-    
+    tmpWord = readFIFOData(mydata->cs3_mem);
+    copy_to_user(buff,&tmpWord,2);
     break;
     
   case IOCTL_TEST_DETECTOR:
-    
+    iobuff = test_detector(mydata->cs0_port);
+    copy_to_user(buff,&iobuff,1);
     break;
   }
   
@@ -244,66 +251,106 @@ static void remove_chrdev(void){
 
 
 /* ============== Detector functions ============== */
-// init detector
+// INIT detector
 static int init_detector(unsigned long portCS0, void __iomem *memCS3){
   unsigned short int *si_memCS3 = memCS3;
-
-  printk(KERN_INFO MODULE_NAME ": init detector\n");
   // just zero to CS0+0, CS0+2 and CS3+62 [31 words]  
   
 #ifdef DEBUG
+  printk(KERN_INFO MODULE_NAME ": init detector\n");
   printk(KERN_INFO MODULE_NAME ": remap addr CS3: 0x%.8x\n", si_memCS3);
 #endif
-
-  // так нужно будет делать, это безопаснее
-  /* 
+ 
   outb(0x00,portCS0+0);
   outb(0x00,portCS0+2);
-  iowrite16(0x0000,memCS3+31*2);
+  iowrite16(0x0000,memCS3+2*31);
 
   // set values 0x40 to CS0+2 and 0x03 to CS3+62
   outb(0x40,portCS0+2);
-  iowrite16(0x0003,memCS3+31*2);
-  */
+  iowrite16(0x0003,memCS3+2*31);
 
-  outb(0x00,portCS0+0);
-  outb(0x00,portCS0+2);
-  si_memCS3[31] = 0x0000;
-
-  outb(0x40,portCS0+2);
-  si_memCS3[31] = 0x0003;
-
-  si_memCS3[1] = 0x0007;
-  si_memCS3[0] = 0xfc81;
+  // init
+  iowrite16(0x0007,memCS3+2*1);
+  iowrite16(0xfc81,memCS3+2*0);
   
-  //iowrite16(0x1234,memCS3);
+  iowrite16(0x0000,memCS3+2*3);
+  iowrite16(0x0000,memCS3+2*2);
 
-  // read FIFO
-#ifdef DEBUG
-  printk(KERN_INFO MODULE_NAME ": CS3[256]: 0x%.4x\n", si_memCS3[256]);
-  printk(KERN_INFO MODULE_NAME ": ioread: 0x%.4x\n", ioread16(memCS3));
-#endif
-   
+  iowrite16(0x0000,memCS3+2*5);
+  iowrite16(0x0002,memCS3+2*4);
+  
+  iowrite16(0x0000,memCS3+2*7);
+  iowrite16(0x0000,memCS3+2*6);
+
+  iowrite16(0x0600,memCS3+2*9);
+  iowrite16(0x0000,memCS3+2*8);
+
+  iowrite16(0x00e0,memCS3+2*11);
+  iowrite16(0x0000,memCS3+2*10);
+
+  iowrite16(0x0000,memCS3+2*13);
+  iowrite16(0x0000,memCS3+2*12);
+
+  iowrite16(0x0014,memCS3+2*15);
+  iowrite16(0x1fb4,memCS3+2*14);
+
+  iowrite16(0x07ff,memCS3+2*23);
+  iowrite16(0x0000,memCS3+2*22);
+
+  iowrite16(0x0200,memCS3+2*25);
+  iowrite16(0x0000,memCS3+2*24);
+
+  iowrite16(0x0000,memCS3+2*29);
+  iowrite16(0x0000,memCS3+2*28);
+
+  iowrite16(0x0640,memCS3+2*9);
+  iowrite16(0x0000,memCS3+2*8);
+
   return 0;
 }
 
 static u16 readFIFOData(void __iomem *memCS3){
+#ifdef DEBUG
+  printk(KERN_INFO MODULE_NAME ": readFIFOData\n");
+#endif
+
   return ioread16(memCS3+256*2);
 }
 
+// START
 static void start_measure(unsigned long portCS0,void __iomem *memCS3){
+#ifdef DEBUG
+  printk(KERN_INFO MODULE_NAME ": start measure\n");
+#endif
 
+  outb(0x80,portCS0);
+  outb(0x40,portCS0+2);
+
+  iowrite16(0xf001,memCS3+2*31);
+  outb(0x60,portCS0+2);
+  iowrite16(0xfc03,memCS3+2*31);
+  return;
 }
 
+// STOP
 static void stop_measure(void __iomem *memCS3){
-  
+#ifdef DEBUG
+  printk(KERN_INFO MODULE_NAME ": stop measure\n");
+#endif
+
+  iowrite16(0xf803,memCS3+2*31);
+  return;
 }
 
 static u8 test_detector(unsigned long portCS0){
+#ifdef DEBUG
+  printk(KERN_INFO MODULE_NAME ": check memory\n");
+#endif
   unsigned char val = inb(portCS0+3);
 #ifdef DEBUG
   printk(KERN_INFO MODULE_NAME ": CS0+3: 0x%.2x\n",val&0xff);
 #endif
+  
   return (val&0x03);
 }
 
