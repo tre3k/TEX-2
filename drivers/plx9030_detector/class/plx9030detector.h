@@ -23,21 +23,36 @@ enum{
   MEMORY_HALF
 };
 
- 
-class plx9030Detector{
- public:
-  explicit plx9030Detector(std::string device);
-  ~plx9030Detector();
-  void init(void);
-  void start(void);
-  void stop(void);
-  uint16_t readMem(void);
-  unsigned char checkMem(void);
-  
- private:
-  int fd;
-};
+#define X1 0x03
+#define X2 0x07
+#define Y1 0x01
+#define Y2 0x05
 
+ struct raw_data{
+   int code;
+   int value;
+   uint16_t raw;
+ };
+
+ struct four_value{
+   int x1,x2,y1,y2;
+ };
+ 
+ class plx9030Detector{
+ public:
+   explicit plx9030Detector(std::string device);
+   ~plx9030Detector();
+   void init(void);
+   void start(void);
+   void stop(void);
+   raw_data readMem(void);
+   four_value read4Value(void);
+   unsigned char checkMem(void);
+   
+ private:
+   int fd;
+ };
+ 
 
 }
 
