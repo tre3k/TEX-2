@@ -9,16 +9,23 @@
 #include "plx9030_detector.h"
 
 static int __init init_plx9030_detector(void){
+  int retval = 0;
   printk(KERN_INFO MODULE_NAME ": module init\n");
 
-  pci_register_driver(&s_pci_driver);
+  retval = alloc_chrdev_region(&tdev,0,MAX_DEVICES,"plx9030_detector_dev");
+  gMajor = MAJOR(tdev);
+  printk(KERN_INFO MODULE_NAME ": char device major: %d\n",gMajor);
+  if(retval < 0) return retval;
   
-  return 0;
+  retval = pci_register_driver(&s_pci_driver);
+  
+  return retval;
 }
 
 static void __exit exit_plx9030_detector(void){
   gCount=0;
   pci_unregister_driver(&s_pci_driver);
+  unregister_chrdev_region(tdev,MAX_DEVICES);
   printk(KERN_INFO MODULE_NAME ": module exit\n");
   return;
 }
@@ -98,6 +105,10 @@ static int plx_device_probe(struct pci_dev *pdev, const struct pci_device_id *en
   devs[gCount].lencs2 = pci_resource_len(pdev,4);
   devs[gCount].lencs3 = pci_resource_len(pdev,5);
 
+  devs[gCount].number = gCount;
+
+  retval = init_chrdev();
+  
   gCount++;
   return retval;
 }
@@ -107,14 +118,136 @@ static int plx_device_probe(struct pci_dev *pdev, const struct pci_device_id *en
 static void plx_device_remove(struct pci_dev *pdev){
   pci_release_regions(pdev);
   pci_disable_device(pdev);
-
+  remove_chrdev();
+  printk(KERN_INFO MODULE_NAME ": remove device: %s%d\n",DEVICE_FILENAME,gCount);
+  gCount++;
   return;
 }
 
 
 /* ============== Char device functions  ============== */
+// read from file
+static ssize_t device_file_read(struct file *f, char __user *buff, size_t count, loff_t *offset){
+
+  return 0;
+}
+
+// write to file
+static ssize_t device_file_write(struct file *f, const char __user *buff, size_t count, loff_t *offset){
+
+  return 0;
+}
+// ioctl file
+static long device_file_ioctl(struct file *f, unsigned int ioctl_num, unsigned long ioctl_param){
+  switch(ioctl_num){
+  case IOCTL_INIT_DETECTOR:
+    
+    break;
+  }
+  return 0;
+}
+
+// release file
+static int device_file_release(struct inode *inode, struct file *f){
+
+  return 0;
+}
+
+// open file
+static int device_file_open(struct inode *inode, struct file *f){
+
+  return 0;
+}
+
+static int init_chrdev(void){
+  int retval = 0;
+
+  char device_name[128];
+  char device_name_class[128];
+
+  
+  sprintf(device_name,"plxdetector%d",gCount);
+  sprintf(device_name_class,"plxdetector%d",gCount);
+
+  devs[gCount].dev_class = class_create(THIS_MODULE,device_name_class);
+  if(devs[gCount].dev_class == NULL) goto err_class;
+  devs[gCount].mkdev = MKDEV(gMajor,gCount);
+  if(device_create(devs[gCount].dev_class,NULL,devs[gCount].mkdev,NULL,device_name)==NULL) goto err_device;
+  cdev_init(&devs[gCount].cdev,&s_file_operations);
+  devs[gCount].cdev.owner = THIS_MODULE;
+  retval = cdev_add(&devs[gCount].cdev,devs[gCount].mkdev,1);
+  if(retval < 0) goto err_cdevadd;
+
+  printk(KERN_INFO MODULE_NAME ": register device: %s\n",device_name);
+  
+  return retval;
+  
+ err_cdevadd:
+  device_destroy(devs[gCount].dev_class,tdev);
+ err_device:
+  class_destroy(devs[gCount].dev_class);
+  printk(KERN_ERR MODULE_NAME ": Error create device!\n");
+ err_class:
+  printk(KERN_ERR MODULE_NAME ": Error create class for char device!\n");
+  return -1;
+}
+
+static void remove_chrdev(void){
+  cdev_del(&(devs[gCount].cdev));
+  device_destroy(devs[gCount].dev_class,devs[gCount].mkdev);
+  class_destroy(devs[gCount].dev_class);
+  return;
+}
+
 
 /* ============== Detector functions ============== */
+// init detector
+static void init_detector(unsigned long portCS0, void __iomem *memCS3){
+  unsigned short int *si_memCS3 = memCS3;
+
+  printk(KERN_INFO MODULE_NAME ": init detector\n");
+  // just zero to CS0+0, CS0+2 and CS3+62 [31 words]  
+  
+#ifdef DEBUG
+  printk(KERN_INFO MODULE_NAME ": remap addr CS3: 0x%.8x\n", si_memCS3);
+#endif
+
+  // так нужно будет делать, это безопаснее
+  /* 
+  outb(0x00,portCS0+0);
+  outb(0x00,portCS0+2);
+  iowrite16(0x0000,memCS3+31*2);
+
+  // set values 0x40 to CS0+2 and 0x03 to CS3+62
+  outb(0x40,portCS0+2);
+  iowrite16(0x0003,memCS3+31*2);
+  */
+
+  outb(0x00,portCS0+0);
+  outb(0x00,portCS0+2);
+  si_memCS3[31] = 0x0000;
+
+  outb(0x40,portCS0+2);
+  si_memCS3[31] = 0x0003;
+
+  si_memCS3[1] = 0x0007;
+  si_memCS3[0] = 0xfc81;
+  
+  //iowrite16(0x1234,memCS3);
+
+  // read FIFO
+#ifdef DEBUG
+  printk(KERN_INFO MODULE_NAME ": CS3[256]: 0x%.4x\n", si_memCS3[256]);
+  printk(KERN_INFO MODULE_NAME ": ioread: 0x%.4x\n", ioread16(memCS3));
+#endif
+ 
+  
+  return;
+}
+
+
+
+
 
 module_init(init_plx9030_detector);
 module_exit(exit_plx9030_detector);

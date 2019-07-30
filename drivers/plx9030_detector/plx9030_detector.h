@@ -94,5 +94,21 @@ struct my_chrdevice_data devs[MAX_DEVICES];
 static int init_chrdev(void);
 static void remove_chrdev(void);
 
+static ssize_t device_file_read(struct file *f, char __user *buff, size_t count, loff_t *offset);
+static ssize_t device_file_write(struct file *f, const char __user *buff, size_t count, loff_t *offset);
+static long device_file_ioctl(struct file *f, unsigned int ioctl_num, unsigned long ioctl_param);
+static int device_file_release(struct inode *inode, struct file *f);
+static int device_file_open(struct inode *inode, struct file *f);
+
+struct file_operations s_file_operations = {
+						  .owner = THIS_MODULE,
+						  .open = device_file_open,
+						  .release = device_file_release,
+						  .read = device_file_read,
+						  .write = device_file_write,
+						  .unlocked_ioctl = device_file_ioctl
+};
+
+
 
 #endif // PLX9030_DETECTOR_H
