@@ -126,24 +126,72 @@ static void plx_device_remove(struct pci_dev *pdev){
 
 
 /* ============== Char device functions  ============== */
+// open file
+static int device_file_open(struct inode *inode, struct file *f){
+  int retval;
+  struct my_chrdevice_data *mydata;
+  
+  mydata = container_of(inode->i_cdev, struct my_chrdevice_data, cdev);
+  f->private_data = mydata;
+  
+  return retval;
+}
+
+
+// ioctl file
+static long device_file_ioctl(struct file *f, unsigned int ioctl_num, unsigned long ioctl_param){
+  int retval = 0;
+  struct my_chrdevice_data *mydata;
+  mydata = (struct my_chrdevice_data *) f->private_data;
+  
+  switch(ioctl_num){
+  case IOCTL_INIT_DETECTOR:
+    mydata->flag = IOCTL_INIT_DETECTOR;
+    retval=init_detector(mydata->cs0_port,mydata->cs3_mem);
+    break;
+
+  case IOCTL_START_DETECTOR:
+    mydata->flag = IOCTL_START_DETECTOR;
+    break;
+
+  case IOCTL_STOP_DETECTOR:
+    mydata->flag = IOCTL_STOP_DETECTOR;
+    break;
+
+  case IOCTL_READ_DETECTOR:
+    mydata->flag = IOCTL_READ_DETECTOR;
+    break;
+    
+  case IOCTL_TEST_DETECTOR:
+    mydata->flag = IOCTL_TEST_DETECTOR;
+    break;
+  }
+
+  return retval;
+}
+
+
 // read from file
 static ssize_t device_file_read(struct file *f, char __user *buff, size_t count, loff_t *offset){
+  struct my_chrdevice_data *mydata;
+  mydata = (struct my_chrdevice_data *) f->private_data;
 
+  switch(mydata->flag){
+  case IOCTL_READ_DETECTOR:
+    
+    break;
+    
+  case IOCTL_TEST_DETECTOR:
+    
+    break;
+  }
+  
   return 0;
 }
 
 // write to file
 static ssize_t device_file_write(struct file *f, const char __user *buff, size_t count, loff_t *offset){
 
-  return 0;
-}
-// ioctl file
-static long device_file_ioctl(struct file *f, unsigned int ioctl_num, unsigned long ioctl_param){
-  switch(ioctl_num){
-  case IOCTL_INIT_DETECTOR:
-    
-    break;
-  }
   return 0;
 }
 
@@ -153,18 +201,13 @@ static int device_file_release(struct inode *inode, struct file *f){
   return 0;
 }
 
-// open file
-static int device_file_open(struct inode *inode, struct file *f){
 
-  return 0;
-}
 
 static int init_chrdev(void){
   int retval = 0;
 
   char device_name[128];
   char device_name_class[128];
-
   
   sprintf(device_name,"plxdetector%d",gCount);
   sprintf(device_name_class,"plxdetector%d",gCount);
@@ -202,7 +245,7 @@ static void remove_chrdev(void){
 
 /* ============== Detector functions ============== */
 // init detector
-static void init_detector(unsigned long portCS0, void __iomem *memCS3){
+static int init_detector(unsigned long portCS0, void __iomem *memCS3){
   unsigned short int *si_memCS3 = memCS3;
 
   printk(KERN_INFO MODULE_NAME ": init detector\n");
@@ -240,13 +283,29 @@ static void init_detector(unsigned long portCS0, void __iomem *memCS3){
   printk(KERN_INFO MODULE_NAME ": CS3[256]: 0x%.4x\n", si_memCS3[256]);
   printk(KERN_INFO MODULE_NAME ": ioread: 0x%.4x\n", ioread16(memCS3));
 #endif
- 
-  
-  return;
+   
+  return 0;
 }
 
+static u16 readFIFOData(void __iomem *memCS3){
+  return ioread16(memCS3+256*2);
+}
 
+static void start_measure(unsigned long portCS0,void __iomem *memCS3){
 
+}
+
+static void stop_measure(void __iomem *memCS3){
+  
+}
+
+static u8 test_detector(unsigned long portCS0){
+  unsigned char val = inb(portCS0+3);
+#ifdef DEBUG
+  printk(KERN_INFO MODULE_NAME ": CS0+3: 0x%.2x\n",val&0xff);
+#endif
+  return (val&0x03);
+}
 
 
 module_init(init_plx9030_detector);

@@ -30,12 +30,21 @@
 #define VPD_DATA 0x50
 #define VPD_ADDR 0x4c
 
+
+/* for user also defined */
 #define IOCTL_INIT_DETECTOR 0xfacecafe             // for initialization detector
 #define IOCTL_START_DETECTOR IOCTL_INIT_DETECTOR+1 // for start measure
 #define IOCTL_STOP_DETECTOR IOCTL_INIT_DETECTOR+2  // for stop measure
 #define IOCTL_READ_DETECTOR IOCTL_INIT_DETECTOR+3  // for read data from FIFO
 #define IOCTL_TEST_DETECTOR IOCTL_INIT_DETECTOR+4  // for test memory half/full/empty
 
+enum{
+  MEMORY_EMPTY,
+  MEMORY_FULL,
+  MEMORY_HALF
+};
+
+/* ********************* */
 
 static unsigned int gCount = 0;
 static dev_t tdev;
@@ -43,9 +52,9 @@ static unsigned int gMajor;
 
 
 /* ============== detector function ============== */
-static void init_detector(unsigned long portCS0, void __iomem *memCS3);
+static int init_detector(unsigned long portCS0, void __iomem *memCS3);
 static u16 readFIFOData(void __iomem *memCS3);
-static void start_measure(void __iomem *memCS3);
+static void start_measure(unsigned long portCS0,void __iomem *memCS3);
 static void stop_measure(void __iomem *memCS3);
 static u8 test_detector(unsigned long portCS0);
 
@@ -84,9 +93,9 @@ struct my_chrdevice_data{
   
   unsigned int major;
   unsigned int number;
+
+  unsigned int flag;
   
-  int cs_flag;
-  long offset;
 };
 
 struct my_chrdevice_data devs[MAX_DEVICES];
