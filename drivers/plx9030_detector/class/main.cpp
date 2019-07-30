@@ -7,8 +7,8 @@ int main(int argc,char **argv){
   plx9030Detector *pd = new plx9030Detector("/dev/plxdetector0");
   raw_data data;
 
-  if(argc < 2){
-    std::cout << argv[0] << " <time in sec>\n";
+  if(argc < 3){
+    std::cout << argv[0] << " <time in sec> <less values>\n";
     return 0;
   }
   
@@ -37,7 +37,7 @@ int main(int argc,char **argv){
   four_value fdata;
   
   std::cout << "x1\tx2\ty1\ty2\n";
-  for(int i=0;i<100;i++){
+  for(int i=0;i<atoi(argv[2]);i++){
     fdata = pd->read4Value();
     std::cout << fdata.x1 << "\t"
 	      << fdata.x2 << "\t"
@@ -46,7 +46,8 @@ int main(int argc,char **argv){
   }
 
   std::cout << "memory is ";
-    switch(pd->checkMem()){
+
+  switch(pd->checkMem()){
   case MEMORY_EMPTY:
     std::cout << "empty.\n";
     break;
@@ -57,7 +58,7 @@ int main(int argc,char **argv){
     std::cout << "full.\n";
     break;
   }
-
+  std::cout << pd->checkMem() << "\n";
   
 
       
