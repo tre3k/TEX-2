@@ -17,9 +17,9 @@ static int __init init_plx9030_detector(void){
 }
 
 static void __exit exit_plx9030_detector(void){
-  printk(KERN_INFO MODULE_NAME ": module exit\n");
-
+  gCount=0;
   pci_unregister_driver(&s_pci_driver);
+  printk(KERN_INFO MODULE_NAME ": module exit\n");
   return;
 }
 
@@ -59,17 +59,46 @@ static int plx_device_probe(struct pci_dev *pdev, const struct pci_device_id *en
   mdelay(100);
   pci_read_config_dword(pdev,VPD_DATA,&serialNM);
   
-  sprintf(serialstring,"%.8x\x00",serialNM&0xffffffff);
-  
+  /* test on detector */
   if(serialNM==114){  //detector ID serial number
-    printk(KERN_INFO MODULE_NAME ": detector found, vendorID: 0x%.4x, deviceID: "
-	 "0x%.4x, revision: 0x%.4x. Seral number: 0x%.8x (%d)\n",
+    sprintf(serialstring,"%.8x\x00",serialNM&0xffffffff);
+    printk(KERN_INFO MODULE_NAME ": detector found, vendorID: 0x%.4x, deviceID:  0x%.4x\n"
+	   MODULE_NAME ": revision: 0x%.4x. Seral number: 0x%.8x (%d)\n",
 	 vendorID,deviceID,revision,serialNM&0xffffffff,serialNM);
   }else{
     printk(KERN_INFO MODULE_NAME ": device is not detector\n");
-    return retval;
+    return retval;   // return if this device not detector
+  }
+
+  printk(KERN_INFO MODULE_NAME ": *************** BARs ***************\n");
+  for(bar=0; bar<6; bar++){
+    addr_start = pci_resource_start(pdev,bar);
+    addr_end = pci_resource_end(pdev,bar);
+    len = pci_resource_len(pdev,bar);
+
+    if(bar<2){
+      printk(KERN_INFO MODULE_NAME ": "
+	     "base addr%d: start 0x%x, end: 0x%x, len %d\n",
+	     bar,addr_start,addr_end,len);
+    }else{
+      printk(KERN_INFO MODULE_NAME ": "
+	     "base addr%d (CS%d): start 0x%x, end: 0x%x, len %d\n",
+	     bar,bar-2,addr_start,addr_end,len);
+    }
   }
   
+  // get addrs value and port to devs array
+  devs[gCount].cs0_port = pci_resource_start(pdev,2);
+  devs[gCount].cs1_port = pci_resource_start(pdev,3);
+  devs[gCount].cs2_mem = pci_ioremap_bar(pdev,4);
+  devs[gCount].cs3_mem = pci_ioremap_bar(pdev,5);
+
+  devs[gCount].lencs0 = pci_resource_len(pdev,2);
+  devs[gCount].lencs1 = pci_resource_len(pdev,3);
+  devs[gCount].lencs2 = pci_resource_len(pdev,4);
+  devs[gCount].lencs3 = pci_resource_len(pdev,5);
+
+  gCount++;
   return retval;
 }
 

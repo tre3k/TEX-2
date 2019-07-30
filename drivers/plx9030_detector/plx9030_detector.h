@@ -30,16 +30,30 @@
 #define VPD_DATA 0x50
 #define VPD_ADDR 0x4c
 
+#define IOCTL_INIT_DETECTOR 0xfacecafe             // for initialization detector
+#define IOCTL_START_DETECTOR IOCTL_INIT_DETECTOR+1 // for start measure
+#define IOCTL_STOP_DETECTOR IOCTL_INIT_DETECTOR+2  // for stop measure
+#define IOCTL_READ_DETECTOR IOCTL_INIT_DETECTOR+3  // for read data from FIFO
+#define IOCTL_TEST_DETECTOR IOCTL_INIT_DETECTOR+4  // for test memory half/full/empty
+
+
+static unsigned int gCount = 0;
+static dev_t tdev;
+static unsigned int gMajor;
+
 
 /* ============== detector function ============== */
-void init_detector(unsigned long portCS0, void __iomem *memCS3);
-u16 readFIFOData(void __iomem *memCS3);
+static void init_detector(unsigned long portCS0, void __iomem *memCS3);
+static u16 readFIFOData(void __iomem *memCS3);
+static void start_measure(void __iomem *memCS3);
+static void stop_measure(void __iomem *memCS3);
+static u8 test_detector(unsigned long portCS0);
 
 /* ============== function of prototypes for PCI ============== */
 static int plx_device_probe(struct pci_dev *pdev, const struct pci_device_id *ent);
 static void plx_device_remove(struct pci_dev *pdev);
 
-// Vendor ID device 0x10b5 0x90f1 <- plx9030 chip
+// Vendor deviceID and vendorID 0x10b5 0x90f1 <- plx9030 chip
 static struct pci_device_id plx_ids_table[] =  {
 						{PCI_DEVICE(0x10b5,0x90f1)},
 						{0,}
@@ -54,6 +68,31 @@ static struct pci_driver s_pci_driver = {
 };
 
 
+/* ============== Char device functions  ============== */
+struct my_chrdevice_data{
+  struct cdev cdev;
+  struct class *dev_class; 
+
+  dev_t mkdev;
+  
+  unsigned long cs0_port;
+  unsigned long cs1_port;
+  void __iomem *cs2_mem;
+  void __iomem *cs3_mem;
+
+  long lencs0,lencs1,lencs2,lencs3;
+  
+  unsigned int major;
+  unsigned int number;
+  
+  int cs_flag;
+  long offset;
+};
+
+struct my_chrdevice_data devs[MAX_DEVICES];
+
+static int init_chrdev(void);
+static void remove_chrdev(void);
 
 
 #endif // PLX9030_DETECTOR_H
