@@ -36,6 +36,7 @@ enum{
 
  struct four_value{
    int x1,x2,y1,y2;
+   bool correct;
  };
  
  class plx9030Detector{

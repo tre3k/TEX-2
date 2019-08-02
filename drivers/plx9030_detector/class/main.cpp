@@ -36,13 +36,19 @@ int main(int argc,char **argv){
 
   four_value fdata;
   
-  std::cout << "x1\tx2\ty1\ty2\n";
+  std::cout << "x1\tx2\ty1\ty2\tx\ty\tsum x\tsum y\n";
   for(int i=0;i<atoi(argv[2]);i++){
     fdata = pd->read4Value();
     std::cout << fdata.x1 << "\t"
 	      << fdata.x2 << "\t"
 	      << fdata.y1 << "\t"
-	      << fdata.y2 << "\n";
+	      << fdata.y2 << "\t"
+	      << fdata.x2-fdata.x1 << "\t"
+	      << fdata.y2-fdata.y1 << "\t"
+	      << fdata.x1+fdata.x2 << "\t"
+	      << fdata.y1+fdata.y2 << "\t"
+	      << fdata.correct << "\n";
+				      
   }
   
 #endif

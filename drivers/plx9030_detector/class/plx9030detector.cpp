@@ -46,13 +46,20 @@ four_value plx9030Detector::read4Value(){
   int value[4];
   
   raw_data data;
+  int j = 0;
+  const int skeep_count = 100;
   
   do{
+    if(j > skeep_count){
+      retval.correct = false;
+      return retval;
+    }
+    j++;
     data = readMem();
     if(data.code!=Y1) continue;
     value[0] = data.value;
     success = true;
-
+    
     for(int i=1;i<4;i++){
       data = readMem();
       if(data.code != codes[i]){
@@ -61,7 +68,10 @@ four_value plx9030Detector::read4Value(){
       }
       value[i] = data.value;
     }
+    
   } while(!success);
+
+  retval.correct = success;
 
   retval.y1 = value[0];
   retval.x1 = value[1];
