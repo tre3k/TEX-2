@@ -28,12 +28,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     include/qcustomplot.cpp \
-    thread.cpp
+    thread.cpp \
+    plx9030detector.cpp
 
 HEADERS += \
         mainwindow.h \
     include/qcustomplot.h \
-    thread.h
+    thread.h \
+    plx9030detector.h
 
 FORMS += \
         mainwindow.ui

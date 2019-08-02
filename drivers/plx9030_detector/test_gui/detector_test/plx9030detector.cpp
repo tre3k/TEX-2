@@ -3,6 +3,8 @@
 using namespace PLX9030Detector;
 
 plx9030Detector::plx9030Detector(std::string device){
+  status = OK;
+
   fd = open(device.c_str(),O_RDWR);
   if(fd<0) status = ERROR_OPEN;
 }
