@@ -1,6 +1,8 @@
 #include <iostream>
 #include "plx9030detector.h"
 
+//#define RAW_FORMAT
+
 using namespace PLX9030Detector;
 
 int main(int argc,char **argv){
@@ -19,9 +21,9 @@ int main(int argc,char **argv){
   sleep(atoi(argv[1]));
   pd->stop();
 
-  //low format
-  /*
-  for(int i=0;i<100;i++){
+#ifdef RAW_FORMAT
+  
+  for(int i=0;i<atoi(argv[2]);i++){
     data = pd->readMem();
     
     std::cout << std::dec << data.code
@@ -29,11 +31,9 @@ int main(int argc,char **argv){
 	      << std::hex << "\t0x" << data.raw <<  "\n";
     
   }
-  std::cout << "check: " << std::dec << (int)(pd->checkMem()&0xff) << "\n";
 
-  */
+#else
 
-  
   four_value fdata;
   
   std::cout << "x1\tx2\ty1\ty2\n";
@@ -44,7 +44,10 @@ int main(int argc,char **argv){
 	      << fdata.y1 << "\t"
 	      << fdata.y2 << "\n";
   }
+  
+#endif
 
+  std::cout << "check: " << std::dec << (int)(pd->checkMem()&0xff) << "\n";
   std::cout << "memory is ";
 
   switch(pd->checkMem()){
