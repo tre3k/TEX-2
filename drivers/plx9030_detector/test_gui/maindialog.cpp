@@ -77,7 +77,7 @@ void Thread::run(){
         QThread::sleep(1);
         pd->stop();
 
-        do{
+        for(int j=0;j<32768;j++){
             data4 = pd->read4Value();
             if(!data4.correct) continue;
             sum_x = data4.x1+data4.x2;
@@ -89,15 +89,15 @@ void Thread::run(){
             ix = data4.x2-data4.x1;
             iy = data4.y2-data4.y1;
 
-            qDebug() << c_x << ix*c_x << iy*c_y;
+            //qDebug() << c_x << ix*c_x << iy*c_y;
 
             ix = (int)(ix*c_x+0.5);
             iy = (int)(iy*c_y+0.5);
 
-            qDebug() << ix << iy;
+            //qDebug() << ix << iy;
 
             emit setCell(ix,iy,1);
-        }while(data4.correct);
+        }
 
         emit replot();
         qDebug() << "time: " << i+1;
