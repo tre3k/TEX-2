@@ -6,7 +6,7 @@
 using namespace PLX9030Detector;
 
 int main(int argc,char **argv){
-  plx9030Detector *pd = new plx9030Detector("/dev/plxdetector0");
+  auto *pd = new plx9030Detector("/dev/plxdetector0");
   if(pd->status != PLX9030Detector::OK){
     std::cout << "Error open char device file!\n";
     return -1;
