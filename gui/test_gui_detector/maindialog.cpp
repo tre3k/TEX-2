@@ -91,8 +91,8 @@ void Thread::run(){
 
             qDebug() << c_x << ix*c_x << iy*c_y;
 
-            ix = (int)(ix*c_x+0.5);
-            iy = (int)(iy*c_y+0.5);
+            //ix = (int)(ix*c_x+0.5);
+            //iy = (int)(iy*c_y+0.5);
 
             qDebug() << ix << iy;
 

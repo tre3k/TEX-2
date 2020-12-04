@@ -23,7 +23,10 @@ int main(int argc,char **argv){
   
   pd->init();
   pd->start();
-  sleep(atoi(argv[1]));
+  for(int i=0;i<atoi(argv[1]);i++){
+	  std::cout << "Check mem: 0x" << std::hex <<  (int)(pd->checkMem()) << std::dec << std::endl;
+	  sleep(1);
+  }
   pd->stop();
 
 #ifdef RAW_FORMAT
