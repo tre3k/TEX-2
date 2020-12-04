@@ -22,19 +22,20 @@ namespace PLX9030Detector{
     OK,
     ERROR_OPEN
   };
-  
-  enum{
-    MEMORY_EMPTY,
-    MEMORY_FULL,
-    MEMORY_HALF
-  };
-
-#define X1 0x03
-#define X2 0x07
-#define Y1 0x01
-#define Y2 0x05
 
  
+#define MEMORY_EMPTY 0
+#define MEMORY_FULL 2 
+#define MEMORY_HALF 3
+ 
+
+
+#define Y2 3
+#define Y1 7
+#define X2 1
+#define X1 5
+
+  
  struct raw_data{
    int code;
    int value;
@@ -61,6 +62,18 @@ namespace PLX9030Detector{
    
  private:
    int fd;
+   int fromCode(int code){
+	   switch(code){
+	   case X1:
+		   return 0;
+	   case X2:
+		   return 1;
+	   case Y1:
+		   return 2;
+	   case Y2:
+		   return 3;
+	   }
+   }
  };
  
 

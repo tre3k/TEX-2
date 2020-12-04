@@ -33,7 +33,21 @@ int main(int argc,char **argv){
   
   for(int i=0;i<atoi(argv[2]);i++){
     data = pd->readMem();
-    
+
+    switch(data.code){
+    case 5:
+	    std::cout << "x1 = ";
+	    break;
+    case 1:
+	    std::cout << "x2 = ";
+	    break;
+    case 7:
+	    std::cout << "y1 = ";
+	    break;
+    case 3:
+	    std::cout << "y2 = ";
+	    break;
+    }
     std::cout << std::dec << data.code
 	      << std::dec << " :\t" << data.value
 	      << std::hex << "\t0x" << data.raw <<  "\n";
