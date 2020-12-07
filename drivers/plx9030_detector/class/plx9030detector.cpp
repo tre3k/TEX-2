@@ -2,7 +2,9 @@
 
 using namespace PLX9030Detector;
 
+bool plx9030Detector::is_runing = false;
 bool plx9030Detector::is_mem_end = false;
+bool plx9030Detector::is_half_mem_end = false;
 unsigned int plx9030Detector::mem_count = 0;
 
 plx9030Detector::plx9030Detector(std::string device){
@@ -17,20 +19,24 @@ plx9030Detector::~plx9030Detector(){
 
 void plx9030Detector::init(){
 	is_mem_end = false;
+	is_half_mem_end = false;
 	mem_count = 0;
 	ioctl(fd,IOCTL_INIT_DETECTOR,0);
 }
 
 void plx9030Detector::start(){
 	ioctl(fd,IOCTL_START_DETECTOR,0);
+	is_runing = true;
 }
 
 void plx9030Detector::stop(){
+	is_runing = false;
 	ioctl(fd,IOCTL_STOP_DETECTOR,0);
 }
 
 raw_data plx9030Detector::readMem(){
 	if(mem_count > MEMORY_SIZE) is_mem_end = true; 
+	if(mem_count > MEMORY_SIZE/2) is_half_mem_end = true;
 	raw_data retval;
 	uint16_t tmp;
 	char buff[2];
@@ -61,6 +67,29 @@ four_value plx9030Detector::read4Value(){
 	  int err = 0;
 	  while(1){
 		  data = readMem();
+
+		  // TEST
+		  switch(data.code){
+		  case 5:
+			  std::cout << "x1 = ";
+			  break;
+		  case 1:
+			  std::cout << "x2 = ";
+			  break;
+		  case 7:
+			  std::cout << "y1 = ";
+			  break;
+		  case 3:
+			  std::cout << "y2 = ";
+			  break;
+		  }
+		  std::cout << std::dec << data.code
+			    << std::dec << " :\t" << data.value
+			    << std::hex << "\t0x" << data.raw <<  "\n";
+
+		  // TEST
+		  
+
 		  if(data.code==X1 || data.code==X2 || data.code==Y1 || data.code==Y2){
 			  value[fromCode(data.code)] = data.value;
 			  count ++;

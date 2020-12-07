@@ -58,7 +58,9 @@ public:
 	unsigned char checkMem(void);
 public:
 	int status;
+	static bool is_runing;
 	static bool is_mem_end;
+	static bool is_half_mem_end;
 	static unsigned int mem_count;
 	
 private:

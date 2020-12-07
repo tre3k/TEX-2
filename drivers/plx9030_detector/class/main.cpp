@@ -24,7 +24,7 @@ int main(int argc,char **argv){
   pd->init();
   pd->start();
   for(int i=0;i<atoi(argv[1]);i++){
-	  std::cout << "Check mem: 0x" << std::hex <<  (int)(pd->checkMem()) << std::dec << std::endl;
+	  std::cout << i+1 << "\r\tCheck mem: 0x" << std::hex <<  (int)(pd->checkMem()) << std::dec << std::endl;
 	  sleep(1);
   }
   pd->stop();
@@ -61,7 +61,8 @@ int main(int argc,char **argv){
   std::cout << "x1\tx2\ty1\ty2\tx\ty\tsum x\tsum y\n";
   for(int i=0;i<atoi(argv[2]);i++){
     fdata = pd->read4Value();
-    std::cout << fdata.x1 << "\t"
+    std::cout << std::dec
+	      << fdata.x1 << "\t"
 	      << fdata.x2 << "\t"
 	      << fdata.y1 << "\t"
 	      << fdata.y2 << "\t"
