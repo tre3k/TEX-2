@@ -23,6 +23,7 @@ namespace PLX9030Detector{
 		ERROR_OPEN
 	};
 
+#define MEMORY_SIZE 524288 //bytes
  
 #define MEMORY_EMPTY 0
 #define MEMORY_HALF 2
@@ -57,6 +58,7 @@ public:
 	unsigned char checkMem(void);
 public:
 	int status;
+	static bool is_mem_end;
 	static unsigned int mem_count;
 	
 private:

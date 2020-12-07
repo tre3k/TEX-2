@@ -2,6 +2,7 @@
 
 using namespace PLX9030Detector;
 
+bool plx9030Detector::is_mem_end = false;
 unsigned int plx9030Detector::mem_count = 0;
 
 plx9030Detector::plx9030Detector(std::string device){
@@ -15,6 +16,7 @@ plx9030Detector::~plx9030Detector(){
 }
 
 void plx9030Detector::init(){
+	is_mem_end = false;
 	mem_count = 0;
 	ioctl(fd,IOCTL_INIT_DETECTOR,0);
 }
@@ -28,6 +30,7 @@ void plx9030Detector::stop(){
 }
 
 raw_data plx9030Detector::readMem(){
+	if(mem_count > MEMORY_SIZE) is_mem_end = true; 
 	raw_data retval;
 	uint16_t tmp;
 	char buff[2];
@@ -47,7 +50,7 @@ raw_data plx9030Detector::readMem(){
 
 four_value plx9030Detector::read4Value(){
 	  four_value retval;
-	  retval.correct = false;
+	  retval.correct = true;
 
 	  constexpr int MAX_ERRS = 100;
 	  
@@ -58,71 +61,24 @@ four_value plx9030Detector::read4Value(){
 	  int err = 0;
 	  while(1){
 		  data = readMem();
-		  if(data.code != X1 &&
-		     data.code != X2 &&
-		     data.code != Y1 &&
-		     data.code != Y2){
-			  err ++;
+		  if(data.code==X1 || data.code==X2 || data.code==Y1 || data.code==Y2){
+			  value[fromCode(data.code)] = data.value;
+			  count ++;
+			  if(count >= 4) break;
+		  }else{
 			  if(err > MAX_ERRS) break;
-			  continue;
+			  err ++;
 		  }
-
-		  value[fromCode(data.code)] = data.value;
-		  count ++;
-		  if(count >= 4) break;
+		  
 	  }
-
-	  for(int i=0;i<4;i++) if(value[i] >= 0) retval.correct = true;
+	  if(is_mem_end) retval.correct = false;
+	  for(int i=0;i<4;i++) if(value[i] < 0) retval.correct = false;
 	  
 	  retval.y1 = value[fromCode(Y1)];
 	  retval.x1 = value[fromCode(X1)];
 	  retval.y2 = value[fromCode(Y2)];
-	  retval.x2 = value[fromCode(X2)]; 	  
-	  
-	/*
-	  four_value retval;
-	  bool success = false;
-	  int codes[] = {Y2,X2,X1,Y1};
-	  int value[4];
-  
-	  raw_data data;
-	  int j = 0;
-	  const int skeep_count = 100;
-  
-	  do{
-	  if(j > skeep_count){
-	  retval.correct = false;
+	  retval.x2 = value[fromCode(X2)];
 	  return retval;
-	  }
-	  j++;
-    
-	  data = readMem();
-	  if(data.code!=Y2) continue;
-	  value[0] = data.value;
-	  success = true;
-    
-	  for(int i=1;i<4;i++){
-	  data = readMem();
-	  if(data.code != codes[i]){
-	  success = false;
-	  continue;
-	  }
-	  value[i] = data.value;
-	  }
-    
-	  } while(!success);
-
-	  retval.correct = success;
-
-	  retval.y1 = value[0];
-	  retval.x1 = value[1];
-	  retval.y2 = value[2];
-	  retval.x2 = value[3];
-
-	*/
-	return retval;
-
-
 }
 
 unsigned char plx9030Detector::checkMem(){
