@@ -2,6 +2,8 @@
 
 using namespace PLX9030Detector;
 
+unsigned int plx9030Detector::mem_count = 0;
+
 plx9030Detector::plx9030Detector(std::string device){
 	fd = open(device.c_str(),O_RDWR);
 	if(fd<0) status = ERROR_OPEN;
@@ -13,6 +15,7 @@ plx9030Detector::~plx9030Detector(){
 }
 
 void plx9030Detector::init(){
+	mem_count = 0;
 	ioctl(fd,IOCTL_INIT_DETECTOR,0);
 }
 
@@ -36,13 +39,18 @@ raw_data plx9030Detector::readMem(){
 	retval.code = (tmp & 0xe000) >> 13;
 	retval.value = tmp & 0x1fff;
 	if(retval.value > 4700) retval.value = -1; 
-  
+
+	mem_count += 2;
+	
 	return retval;
 }
 
 four_value plx9030Detector::read4Value(){
 	  four_value retval;
+	  retval.correct = false;
 
+	  constexpr int MAX_ERRS = 100;
+	  
 	  raw_data data;
 	  int value[4] = {-1,-1,-1,-1};
 
@@ -55,7 +63,7 @@ four_value plx9030Detector::read4Value(){
 		     data.code != Y1 &&
 		     data.code != Y2){
 			  err ++;
-			  if(err > 100) break;
+			  if(err > MAX_ERRS) break;
 			  continue;
 		  }
 
@@ -64,12 +72,12 @@ four_value plx9030Detector::read4Value(){
 		  if(count >= 4) break;
 	  }
 
-	  /*
-	  retval.y1 = value[Y1];
-	  retval.x1 = value[X1];
-	  retval.y2 = value[Y2];
-	  retval.x2 = value[X2];
-	  */
+	  for(int i=0;i<4;i++) if(value[i] >= 0) retval.correct = true;
+	  
+	  retval.y1 = value[fromCode(Y1)];
+	  retval.x1 = value[fromCode(X1)];
+	  retval.y2 = value[fromCode(Y2)];
+	  retval.x2 = value[fromCode(X2)]; 	  
 	  
 	/*
 	  four_value retval;

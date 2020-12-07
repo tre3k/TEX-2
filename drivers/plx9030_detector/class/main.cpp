@@ -33,7 +33,7 @@ int main(int argc,char **argv){
   
   for(int i=0;i<atoi(argv[2]);i++){
     data = pd->readMem();
-
+    std::cout << "line: " << std::dec << i+1 << "\t";
     switch(data.code){
     case 5:
 	    std::cout << "x1 = ";
@@ -75,7 +75,8 @@ int main(int argc,char **argv){
   
 #endif
 
-  std::cout << "check: " << std::dec << (int)(pd->checkMem()&0xff) << "\n";
+  std::cout << "mem read: " << std::dec << pd->mem_count << " bytes" << std::endl;
+  std::cout << "check: " <<  (int)(pd->checkMem()&0xff) << std::endl;
   std::cout << "memory is ";
 
   switch(pd->checkMem()){
@@ -89,9 +90,8 @@ int main(int argc,char **argv){
     std::cout << "full.\n";
     break;
   }
-  std::cout << pd->checkMem() << "\n";
+  std::cout << "check mem: " << (int) pd->checkMem() << "\n";
   
-
       
   delete pd;
   return 0;
