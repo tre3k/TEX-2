@@ -44,16 +44,20 @@ four_value plx9030Detector::read4Value(){
 	  four_value retval;
 
 	  raw_data data;
-	  int value[4];
+	  int value[4] = {-1,-1,-1,-1};
 
 	  int count = 0;
+	  int err = 0;
 	  while(1){
 		  data = readMem();
 		  if(data.code != X1 &&
 		     data.code != X2 &&
 		     data.code != Y1 &&
-		     data.code != Y2)
+		     data.code != Y2){
+			  err ++;
+			  if(err > 100) break;
 			  continue;
+		  }
 
 		  value[fromCode(data.code)] = data.value;
 		  count ++;

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "plx9030detector.h"
 
-//#define RAW_FORMAT
+#define RAW_FORMAT
 
 using namespace PLX9030Detector;
 
