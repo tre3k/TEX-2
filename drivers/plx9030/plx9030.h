@@ -34,6 +34,10 @@
 #define CS1_SET_ADDR CS0_SET_ADDR+1
 #define CS2_SET_ADDR CS0_SET_ADDR+2
 #define CS3_SET_ADDR CS0_SET_ADDR+3
+#define CS0_SET_ADDR16 CS0_SET_ADDR+4
+#define CS1_SET_ADDR16 CS0_SET_ADDR+5
+#define CS2_SET_ADDR16 CS0_SET_ADDR+6
+#define CS3_SET_ADDR16 CS0_SET_ADDR+7
 
 
 static unsigned int gCount = 0;
@@ -49,12 +53,12 @@ static int device_file_release(struct inode *inode, struct file *f);
 static int device_file_open(struct inode *inode, struct file *f);
 
 struct file_operations s_file_operations = {
-						  .owner = THIS_MODULE,
-						  .open = device_file_open,
-						  .release = device_file_release,
-						  .read = device_file_read,
-						  .write = device_file_write,
-						  .unlocked_ioctl = device_file_ioctl
+	.owner = THIS_MODULE,
+	.open = device_file_open,
+	.release = device_file_release,
+	.read = device_file_read,
+	.write = device_file_write,
+	.unlocked_ioctl = device_file_ioctl
 };
 
 
@@ -63,36 +67,36 @@ static int plx_device_probe(struct pci_dev *pdev, const struct pci_device_id *en
 static void plx_device_remove(struct pci_dev *pdev);
 
 static struct pci_device_id plx_ids_table[] =  {
-						{PCI_DEVICE(0x10b5,0x90f1)},
-						{0,}
+	{PCI_DEVICE(0x10b5,0x90f1)},
+	{0,}
 };
 
 
 static struct pci_driver s_pci_driver = {
-					      .name = MODULE_NAME,
-					      .id_table = plx_ids_table,
-					      .probe    = plx_device_probe,
-					      .remove   = plx_device_remove
+	.name = MODULE_NAME,
+	.id_table = plx_ids_table,
+	.probe    = plx_device_probe,
+	.remove   = plx_device_remove
 };
 
 struct my_chrdevice_data{
-  struct cdev cdev;
-  struct class *dev_class; 
+	struct cdev cdev;
+	struct class *dev_class; 
 
-  dev_t mkdev;
+	dev_t mkdev;
   
-  unsigned long cs0_port;
-  unsigned long cs1_port;
-  void __iomem *cs2_mem;
-  void __iomem *cs3_mem;
+	unsigned long cs0_port;
+	unsigned long cs1_port;
+	void __iomem *cs2_mem;
+	void __iomem *cs3_mem;
 
-  long lencs0,lencs1,lencs2,lencs3;
+	long lencs0,lencs1,lencs2,lencs3;
   
-  unsigned int major;
-  unsigned int number;
+	unsigned int major;
+	unsigned int number;
   
-  int cs_flag;
-  long offset;
+	int cs_flag;
+	long offset;
 };
 
 struct my_chrdevice_data devs[MAX_DEVICES];

@@ -13,4 +13,5 @@ clean:
 test:
 	rmmod plx9030
 	insmod plx9030.ko
+	chmod 666 /dev/plxdev*
 	dmesg | tail -n 40

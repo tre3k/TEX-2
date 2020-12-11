@@ -260,7 +260,8 @@ static int init_detector(unsigned long portCS0, void __iomem *memCS3){
 	printk(KERN_INFO MODULE_NAME ": init detector\n");
 	printk(KERN_INFO MODULE_NAME ": remap addr CS3: 0x%.8x\n", si_memCS3);
 #endif
- 
+
+	// RESET
 	outb(0x00,portCS0+0);
 	outb(0x00,portCS0+2);
 	iowrite16(0x0000,memCS3+2*31);
@@ -306,8 +307,14 @@ static int init_detector(unsigned long portCS0, void __iomem *memCS3){
 	iowrite16(0x0640,memCS3+2*9);
 	iowrite16(0x0000,memCS3+2*8);
 
+#ifdef DEBUG
+	printk(KERN_INFO MODULE_NAME "END OF INIT, Test:\n");
+	for(int i=0;i<30;i++){
+		printk(KERN_INFO MODULE_NAME "%d: addr CS3: 0x%.8x value: %0x.4x\n",i,memCS3+2*i,ioread16(memCS3+2*i));
+	}
 	return 0;
 }
+#endif
 
 static u16 readFIFOData(void __iomem *memCS3){
 #ifdef DEBUG

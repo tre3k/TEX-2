@@ -40,6 +40,49 @@ void plx9030::write8(uint32_t base, long int offset, char byte) {
     if(write(fd,&byte,1) <0 ) status = STATUS_WRITE_ERROR;
 }
 
+uint16_t plx9030::read_hw16(uint32_t base, long int offset) {
+	unsigned short int word;
+	switch(base){
+	case CS0:
+		base = CS0_16;
+		break;
+	case CS1:
+		base = CS1_16;
+		break;
+	case CS2:
+		base = CS2_16;
+		break;
+	case CS3:
+		base = CS3_16;
+		break;
+
+	}
+	
+	if(ioctl(fd,base,offset) < 0) status = STATUS_IOCTL_ERROR;
+	if(read(fd,&word,2) < 0) status = STATUS_READ_ERROR;
+	return word;
+}
+
+void plx9030::write_hw16(uint32_t base, long int offset, uint16_t word) {
+	switch(base){
+	case CS0:
+		base = CS0_16;
+		break;
+	case CS1:
+		base = CS1_16;
+		break;
+	case CS2:
+		base = CS2_16;
+		break;
+	case CS3:
+		base = CS3_16;
+		break;
+
+	}
+	if(ioctl(fd,base,offset) < 0) status = STATUS_IOCTL_ERROR;
+	if(write(fd,&word,2) <0 ) status = STATUS_WRITE_ERROR;
+}
+
 uint16_t plx9030::read16(uint32_t base, long int offset) {
     uint16_t retval = 0;
     // 16 bit = 2 bytes

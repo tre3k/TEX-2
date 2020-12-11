@@ -22,6 +22,7 @@ int main(int argc,char **argv){
   std::cout << "start " << atoi(argv[1]) << " sec\n";
   
   pd->init();
+  /*
   pd->start();
   for(int i=0;i<atoi(argv[1]);i++){
 	  std::cout << i+1 << "\r\tCheck mem: 0x" << std::hex <<  (int)(pd->checkMem()) << std::dec << std::endl;
@@ -34,7 +35,7 @@ int main(int argc,char **argv){
   
   for(int i=0;i<atoi(argv[2]);i++){
     data = pd->readMem();
-    std::cout << "check mem: 0x" << std::hex <<(int) pd->checkMem() << std::dec << std::endl;
+//    std::cout << "check mem: 0x" << std::hex <<(int) pd->checkMem() << std::dec << std::endl;
     
     std::cout << "line:" << std::dec << i+1 << "\r\t";
     switch(data.code){
@@ -100,7 +101,7 @@ int main(int argc,char **argv){
     break;
   }
   std::cout << "check mem: " << (int) pd->checkMem() << "\n";
-  
+  */
       
   delete pd;
   return 0;

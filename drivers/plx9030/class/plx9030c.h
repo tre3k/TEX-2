@@ -16,11 +16,20 @@ namespace PLX9030{
 #define CS1_SET_ADDR CS0_SET_ADDR+1
 #define CS2_SET_ADDR CS0_SET_ADDR+2
 #define CS3_SET_ADDR CS0_SET_ADDR+3
+#define CS0_SET_ADDR16 CS0_SET_ADDR+4
+#define CS1_SET_ADDR16 CS0_SET_ADDR+5
+#define CS2_SET_ADDR16 CS0_SET_ADDR+6
+#define CS3_SET_ADDR16 CS0_SET_ADDR+7
+
 
 const uint32_t CS0 = CS0_SET_ADDR;
 const uint32_t CS1 = CS1_SET_ADDR;
 const uint32_t CS2 = CS2_SET_ADDR;
 const uint32_t CS3 = CS3_SET_ADDR;
+const uint32_t CS0_16 = CS0_SET_ADDR16;
+const uint32_t CS1_16 = CS1_SET_ADDR16;
+const uint32_t CS2_16 = CS2_SET_ADDR16;
+const uint32_t CS3_16 = CS3_SET_ADDR16;
 
 
     enum{
@@ -55,6 +64,9 @@ const uint32_t CS3 = CS3_SET_ADDR;
         uint16_t read16(uint32_t base, long int offset);
         void write16(uint32_t base, long int offset, uint16_t word);
 
+	uint16_t read_hw16(uint32_t base, long int offset);
+        void write_hw16(uint32_t base, long int offset, uint16_t word);       
+	
         uint32_t read24(uint32_t base, long int offset);
         void write24(uint32_t base, long int offset, uint32_t twoword);
 

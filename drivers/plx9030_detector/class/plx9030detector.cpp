@@ -22,7 +22,9 @@ void plx9030Detector::init(){
 	is_half_mem_end = false;
 	mem_count = 0;
 	ioctl(fd,IOCTL_INIT_DETECTOR,0);
-	usleep(500);	    
+	usleep(500);
+	std::cout << "FIFO read 2 values for zero\n";
+	for(int i=0;i<2;i++) readMem();
 }
 
 void plx9030Detector::start(){
@@ -35,10 +37,10 @@ void plx9030Detector::start(){
 void plx9030Detector::stop(){
 	is_runing = false;
 	ioctl(fd,IOCTL_STOP_DETECTOR,0);
-	std::cout << std::hex << "Check mem: 0x" << (int)checkMem() << std::endl; 
-	readMem();
-	readMem();
-	std::cout << std::hex << "Check mem: 0x" << (int)checkMem() << std::dec << std::endl; 							  
+//	std::cout << std::hex << "Check mem: 0x" << (int)checkMem() << std::endl; 
+//	readMem();
+//	readMem();
+//	std::cout << std::hex << "Check mem: 0x" << (int)checkMem() << std::dec << std::endl; 							  
 	std::cout << "stop!\n";
 }
 
