@@ -1,7 +1,7 @@
 #include <iostream>
 #include "plx9030detector.h"
 
-//#define RAW_FORMAT
+#define RAW_FORMAT
 
 using namespace PLX9030Detector;
 
@@ -29,11 +29,14 @@ int main(int argc,char **argv){
   }
   pd->stop();
 
+
 #ifdef RAW_FORMAT
   
   for(int i=0;i<atoi(argv[2]);i++){
     data = pd->readMem();
-    std::cout << "line: " << std::dec << i+1 << "\t";
+    std::cout << "check mem: 0x" << std::hex <<(int) pd->checkMem() << std::dec << std::endl;
+    
+    std::cout << "line:" << std::dec << i+1 << "\r\t";
     switch(data.code){
     case 5:
 	    std::cout << "x1 = ";
@@ -60,6 +63,7 @@ int main(int argc,char **argv){
   
   std::cout << "x1\tx2\ty1\ty2\tx\ty\tsum x\tsum y\n";
   for(int i=0;i<atoi(argv[2]);i++){
+    
     fdata = pd->read4Value();
     std::cout << std::dec
 	      << fdata.x1 << "\t"
@@ -76,6 +80,10 @@ int main(int argc,char **argv){
   
 #endif
 
+
+  four_value *fVal = new four_value[32768];
+//  readAllMem(data);
+  
   std::cout << "mem read: " << std::dec << pd->mem_count << " bytes" << std::endl;
   std::cout << "check: " <<  (int)(pd->checkMem()&0xff) << std::endl;
   std::cout << "memory is ";

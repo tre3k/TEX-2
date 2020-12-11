@@ -22,24 +22,35 @@ void plx9030Detector::init(){
 	is_half_mem_end = false;
 	mem_count = 0;
 	ioctl(fd,IOCTL_INIT_DETECTOR,0);
+	usleep(500);	    
 }
 
 void plx9030Detector::start(){
 	ioctl(fd,IOCTL_START_DETECTOR,0);
 	is_runing = true;
+	usleep(200);
+	std::cout << "start!\n";
 }
 
 void plx9030Detector::stop(){
 	is_runing = false;
 	ioctl(fd,IOCTL_STOP_DETECTOR,0);
+	std::cout << std::hex << "Check mem: 0x" << (int)checkMem() << std::endl; 
+	readMem();
+	readMem();
+	std::cout << std::hex << "Check mem: 0x" << (int)checkMem() << std::dec << std::endl; 							  
+	std::cout << "stop!\n";
 }
 
 raw_data plx9030Detector::readMem(){
+	constexpr int MAX_ERR_VALUE = 4700;
 	if(mem_count > MEMORY_SIZE) is_mem_end = true; 
 	if(mem_count > MEMORY_SIZE/2) is_half_mem_end = true;
 	raw_data retval;
 	uint16_t tmp;
 	char buff[2];
+
+	usleep(300);
 	ioctl(fd,IOCTL_READ_DETECTOR,0);
 	read(fd,buff,2);
 	tmp = buff[0] | (buff[1] << 8);
@@ -47,12 +58,27 @@ raw_data plx9030Detector::readMem(){
 	retval.raw = tmp;
 	retval.code = (tmp & 0xe000) >> 13;
 	retval.value = tmp & 0x1fff;
-	if(retval.value > 4700) retval.value = -1; 
+	//if(retval.value > MAX_ERR_VALUE) retval.value = -1; 
 
 	mem_count += 2;
 	
 	return retval;
 }
+
+void readAllMem(four_value *data){
+	/*
+	while(checkMem() & 4){
+		  four_value fdata;    
+		  fdata = read4Value();
+		  usleep(100);
+	}
+	*/
+
+	
+	
+	std::cout << "End of mem";
+}
+
 
 four_value plx9030Detector::read4Value(){
 	  four_value retval;
@@ -109,6 +135,7 @@ four_value plx9030Detector::read4Value(){
 	  retval.x2 = value[fromCode(X2)];
 	  return retval;
 }
+
 
 unsigned char plx9030Detector::checkMem(){
 	unsigned char byte = 0x00;

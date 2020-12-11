@@ -54,6 +54,7 @@ public:
 	void start(void);
 	void stop(void);
 	raw_data readMem(void);
+	void readAllMem(four_value *data);
 	four_value read4Value(void);
 	unsigned char checkMem(void);
 public:
